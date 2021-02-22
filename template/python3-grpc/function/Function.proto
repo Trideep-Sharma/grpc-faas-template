@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+service FunctionService {
+    rpc getFunctionResponse(FunctionRequest) returns (FunctionResponse);
+}
+
+message FunctionRequest {
+    string msg = 1;
+}
+
+message FunctionResponse {
+    string msg = 1;
+}
