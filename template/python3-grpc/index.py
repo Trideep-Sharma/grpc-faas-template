@@ -14,7 +14,7 @@ def call_handler():
     return ("OK", 200)
 
 if __name__ == '__main__':
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=20), maximum_concurrent_rpcs=200)
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10), maximum_concurrent_rpcs=200)
     generated_grpc.Function_pb2_grpc.add_FunctionServiceServicer_to_server(handler.HandleGRPC(), server)
     server.add_insecure_port('[::]:9000')
     server.start()
