@@ -19,5 +19,5 @@ if __name__ == '__main__':
     server.add_insecure_port('[::]:9000')
     server.start()
     print("started grpc server")
-    serve(app, host='0.0.0.0', port=8080)
+    serve(app, host='0.0.0.0', port=8080, asyncore_use_poll=True)
     server.wait_for_termination()
