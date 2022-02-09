@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "in.wynk.discovery.arsenal.generated_grpc";
+option go_package = "./";
+
+service FunctionService {
+  rpc getFunctionResponse(FunctionRequest) returns (FunctionResponse);
+}
+
+message FunctionRequest {
+  LiveContextRequest query = 1;
+  FunctionResponse body = 2;
+}
+
+message FunctionResponse {
+  string title = 1;
+  string subTitle = 2;
+  repeated string languages = 3;
+  repeated Content contents = 4;
+  DynamicMeta dynamicMeta = 5;
+}
+
+message Content {
+  ContentType type = 1;
+  string contentId = 2;
+  uint32 position = 3;
+}
+
+message DynamicMeta {
+  string functionName = 1;
+  string useCase = 2;
+  bool isFollowable = 3;
+  RefreshType refreshType = 4;
+  FunctionProtocol protocol = 5;
+}
+
+enum RefreshType {
+  ALWAYS = 0;
+  DAILY = 1;
+  WEEKLY = 2;
+  MONTHLY = 3;
+  MANUAL = 4;
+}
+
+enum ContentType{
+  SONG = 0;
+  ALBUM = 1;
+  ARTIST = 2;
+  COMPILATION = 3;
+  TILE = 4;
+  COLLECTION = 5;
+}
+
+enum FunctionProtocol{
+  HTTP = 0;
+  GRPC = 1;
+}
+
+message LiveContextRequest {
+  repeated string languages = 1;
+  string uid = 2;
+  string artistId = 3;
+}
+

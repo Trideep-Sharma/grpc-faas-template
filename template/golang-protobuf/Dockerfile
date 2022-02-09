@@ -1,6 +1,5 @@
 FROM --platform=${TARGETPLATFORM:-linux/amd64} ghcr.io/openfaas/of-watchdog:0.9.2 as watchdog
 FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.16-alpine3.14 as build
-
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 ARG TARGETOS
@@ -15,6 +14,7 @@ ENV CGO_ENABLED=0
 
 RUN mkdir -p /go/src/handler
 WORKDIR /go/src/handler
+
 COPY . .
 
 ARG GO111MODULE="on"
@@ -30,7 +30,16 @@ RUN test -z "$(gofmt -l $(find . -type f -name '*.go' -not -path "./vendor/*" -n
 
 
 WORKDIR /go/src/handler/function
+RUN go get -u github.com/golang/protobuf/proto
+RUN go get -u github.com/golang/protobuf/protoc-gen-go
+USER root
+RUN mkdir generated_grpc
+RUN apk add --no-cache protobuf git \
+  && go get github.com/golang/protobuf/protoc-gen-go \
+  && cp /go/bin/protoc-gen-go /usr/bin/
 
+RUN protoc --go_out=plugins=grpc:generated_grpc Function.proto
+RUN go get -u google.golang.org/grpc
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go test ./... -cover
 
 WORKDIR /go/src/handler
@@ -52,8 +61,8 @@ COPY --from=build --chown=app /go/src/handler/handler    .
 COPY --from=build --chown=app /usr/bin/fwatchdog         .
 COPY --from=build --chown=app /go/src/handler/function/  .
 
-USER app
 
+USER app
 ENV fprocess="./handler"
 ENV mode="http"
 ENV upstream_url="http://127.0.0.1:8082"
